@@ -12,14 +12,14 @@ def api_all():
   conn = sql.connect('example.db')
   cur = conn.cursor()
   today = date.today()
-  query = f"SELECT Country_Region, sum(Confirmed) as Total_Cases, sum(Deaths) as Total_Deaths, sum(Recovered) as Recovered FROM example WHERE date(Last_Update) = '{today}' GROUP BY Country_Region ORDER BY Total_Cases DESC"
+  query = f"SELECT Country_Region, sum(Confirmed) as Total_Cases, sum(Deaths) as Total_Deaths, sum(Recovered) as Recovered, (sum(Confirmed) - (sum(Deaths) + sum(Recovered))) as Active_Cases, round((100 / sum(Confirmed) * sum(Deaths)), 2) as Mortality_Rate FROM example WHERE date(Last_Update) = '{today}' GROUP BY Country_Region ORDER BY Total_Cases DESC"
   cur.execute(query)
 
   rows = cur.fetchall();
 
   data = list()
   for row in rows:
-    data.append({ 'Country': row[0], 'Total_Cases': row[1], 'Total_Deaths': row[2], 'Recovered': row[3] })
+    data.append({ 'Country': row[0], 'Total_Cases': row[1], 'Total_Deaths': row[2], 'Recovered': row[3], 'Active_Cases': row[4], 'Mortality_Rate': row[5] })
 
   return jsonify(data)
   
